@@ -1,2 +1,3 @@
 pdfvenv/
 .env
+__pycache__/
