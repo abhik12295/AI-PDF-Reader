@@ -1,0 +1,36 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Welcome</h1>
+    <a href="login">Login</a>
+    <a href="signup">Sign Up</a>
+</body>
+</html>
+ -->
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <nav class="navbar">
+        <h1 class="navbar-brand">Index Page</h1>
+        <div class="navbar-nav">
+            {% if request.cookies.get('access_token') %}
+                <a href="/dashboard">Dashboard</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signup">signup</a>
+            {% endif %}
+        </div>
+    </nav>
+</body>
+</html>
+
+

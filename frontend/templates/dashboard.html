@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <nav class="navbar">
+        <h1 class="navbar-brand">Dashboard page</h1>
+        <div class="navbar-nav">
+            {% if request.cookies.get('access_token') %}
+                <a href="/">Home</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signup">signup</a>
+            {% endif %}
+        </div>
+    </nav>
+</body>
+</html>
