@@ -44,9 +44,19 @@
         <input type="file" name="pdf" accept=".pdf" required>
         <button type="submit">Upload</button>
     </form>
-
-    {% if request.query_params.get('file_exists') %}
+    
+    <!-- {% if request.query_params.get('file_exists') %}
         <p style="color:red;">This file already exists! Showing existing file...</p>
+    {% endif %} -->
+
+    {% if full_text %}
+        <h3>Full Extracted Text:</h3>
+        <pre>{{ full_text }}</pre>
+    {% endif %}
+
+    {% if summary %}
+        <h3>ChatGPT Summary:</h3>
+        <pre>{{ summary }}</pre>
     {% endif %}
 </body>
 </html>
