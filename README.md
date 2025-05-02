@@ -11,7 +11,7 @@ This application allows users to upload PDF files, extract text from them, and i
 
 ## Features
 
-- **PDF Text Extraction**: Uses `fitz` to extract text from PDFs.
+- **PDF Text Extraction**: Uses `pdfminer.six` to extract text from PDFs.
 - **AI-Powered Text Processing**: Summarizes or provides insights based on the extracted text using OpenAI API.
 
 ## Setup
