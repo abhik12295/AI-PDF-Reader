@@ -10,7 +10,7 @@ async def auth_middleware(request: Request, call_next):
     token = request.cookies.get('access_token')
     if token and token.startswith('Bearer '):
         token = token.split(' ')[1]
-        request.headers.__dict__['list'].append(
+        request.headers.__dict__['_list'].append(
             (b"authorization", f"Bearer {token}".encode())
         )
     response = await call_next(request)

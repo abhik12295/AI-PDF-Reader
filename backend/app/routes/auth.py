@@ -53,10 +53,10 @@ async def login(response: Response, email: EmailStr = Form(...), password = Form
     try:
         return login_user(email, password, response)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Login failed: {str(e)}")
 
 
-# Serve the dashboard page
+# # # Serve the dashboard page
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
@@ -68,4 +68,4 @@ async def logout(response: Response):
     try:
         return logout_user(response)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Logout failed: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Logout failed: {str(e)}")

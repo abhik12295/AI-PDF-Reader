@@ -41,6 +41,7 @@ templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
 # Include Routes
 app.include_router(auth.router)
 app.include_router(dashboard.router)
+# app.include_router(dashboard_router)
 
 # Serve the index page
 @app.get("/", response_class=HTMLResponse)

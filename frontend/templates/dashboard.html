@@ -19,7 +19,6 @@
 </body>
 </html> -->
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,24 +38,29 @@
         </div>
     </nav>
 
-    <h2>Upload your PDF (Max 5 files)</h2>
-    <form action="/upload_pdf" enctype="multipart/form-data" method="post">
-        <input type="file" name="pdf" accept=".pdf" required>
-        <button type="submit">Upload</button>
-    </form>
-    
-    <!-- {% if request.query_params.get('file_exists') %}
-        <p style="color:red;">This file already exists! Showing existing file...</p>
-    {% endif %} -->
+    {% if request.cookies.get('access_token') %}
+        <h2>Upload your PDF (Max 1 file)</h2>
+        <form action="/dashboard" enctype="multipart/form-data" method="post">
+            <input type="file" name="pdf" accept="application/pdf" required>
+            <button type="submit">Upload</button>
+        </form>
 
-    {% if full_text %}
-        <h3>Full Extracted Text:</h3>
-        <pre>{{ full_text }}</pre>
-    {% endif %}
+        {% if full_text %}
+            <h3>Full Extracted Text:</h3>
+            <pre>{{ full_text }}</pre>
+        {% endif %}
 
-    {% if summary %}
-        <h3>ChatGPT Summary:</h3>
-        <pre>{{ summary }}</pre>
+        {% if summary %}
+            <h3>ChatGPT Summary:</h3>
+            <pre>{{ summary }}</pre>
+        {% endif %}
+
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+    {% else %}
+        <p>Please log in to upload files and view results.</p>
+        <a href="/login">Login</a>
     {% endif %}
 </body>
 </html>
