@@ -17,7 +17,7 @@ def register_user(email: str, password: str):
     #     raise HTTPException(status_code=400, detail="User already exists or invalid data")
     # return {"message": "User registered successfully, check your email for confirmation"}
 
-def login_user(email: str, password: str, response: Response):
+#def login_user(email: str, password: str, response: Response):
     try:
         auth_response = supabase_client.auth.sign_in_with_password({
             "email": email, "password": password
@@ -47,6 +47,28 @@ def login_user(email: str, password: str, response: Response):
     # except Exception as e:
     #     raise HTTPException(status_code=500, detail=f"Login failed: {str(e)}")
 
+def login_user(email: str, password: str, response: Response):
+    try:
+        auth_response = supabase_client.auth.sign_in_with_password({
+            "email": email, "password": password
+        })
+        if auth_response.user is None:
+            raise HTTPException(status_code=400, detail='Login Failed')
+        access_token = auth_response.session.access_token
+        response = RedirectResponse('/', status_code=303)
+        response.set_cookie(
+            key='access_token',
+            value=access_token,  # No "Bearer " prefix
+            httponly=True,
+            secure=False,
+            samesite="lax",
+            max_age=24 * 60 * 60
+        )
+        print(f"Set-Cookie: access_token={access_token}")
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
 
 def logout_user(response: Response):
     response = RedirectResponse('/login', status_code=303)

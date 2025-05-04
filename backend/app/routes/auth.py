@@ -14,16 +14,8 @@ from pydantic import EmailStr
 
 router = APIRouter()
 
-# Path to the base directory (adjusted to ensure the correct path)
-
-app = FastAPI()
-
 BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
-
-# Mount static files
-app.mount("/static", StaticFiles(directory=BASE_DIR / "frontend/static"), name="static")
-
-# Load templates
+# app.mount("/static", StaticFiles(directory=BASE_DIR / "frontend/static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
 
 # Serve the signup page
@@ -56,11 +48,10 @@ async def login(response: Response, email: EmailStr = Form(...), password = Form
         raise HTTPException(status_code=400, detail=f"Login failed: {str(e)}")
 
 
-# # # Serve the dashboard page
-@router.get("/dashboard", response_class=HTMLResponse)
-def dashboard_page(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
+# # # Serve the dashboard page - without authentication
+# @router.get("/dashboard", response_class=HTMLResponse)
+# def dashboard_page(request: Request):
+#     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 #@router.get("/logout")
 @router.get("/logout")

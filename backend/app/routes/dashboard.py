@@ -11,24 +11,23 @@ import jwt
 
 router = APIRouter()
 
-# Path to the base directory (adjusted to ensure the correct path)
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
 templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
 
-JWT_KEY = os.getenv("JWT_KEY")
+# JWT_KEY = os.getenv("JWT_KEY")
 
-def verify_token(request: Request):
-    token = request.cookies.get(key = "access_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="Missing access token")
+# def verify_token(request: Request):
+#     token = request.cookies.get(key = "access_token")
+#     if not token:
+#         raise HTTPException(status_code=401, detail="Missing access token")
 
-    try:
-        payload = jwt.decode(token, JWT_KEY, algorithms=["HS256"])
-        return payload  # Return user details
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Access token expired")
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+#     try:
+#         payload = jwt.decode(token, JWT_KEY, algorithms=["HS256"])
+#         return payload  # Return user details
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(status_code=401, detail="Access token expired")
+#     except jwt.PyJWTError:
+#         raise HTTPException(status_code=401, detail="Invalid token")
 
 '''-------------------------------'''
 
@@ -55,6 +54,14 @@ def verify_token(request: Request):
 
 #     #return {"message": "Welcome to the dashboard!", "user": user_data}
 
+#with authentication
+@router.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_page(request: Request, current_user: dict = Depends(get_current_user)):
+    return templates.TemplateResponse("dashboard.html", {
+        "request": request,
+        "user": current_user
+    })
+
 @router.post("/dashboard", response_class=HTMLResponse)
 async def dashboard(
     request:Request,
@@ -69,8 +76,8 @@ async def dashboard(
         summary = get_summary(pdf_text)
         return templates.TemplateResponse("dashboard.html",{
             "request":request,  
+            "full_text": pdf_text,
             "summary":summary,
-            "user":current_user
         })
     
     except Exception as e:

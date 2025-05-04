@@ -9,6 +9,7 @@ from pathlib import Path
 from backend.app.auth_config import get_current_user
 
 app = FastAPI()
+print("Starting FastAPI app")
 
 # Add CORS Middleware
 app.add_middleware(
@@ -20,23 +21,12 @@ app.add_middleware(
 )
 app.middleware('http')(auth_middleware)
 
-# Path to the base directory (adjusted to ensure the correct path)
-from pathlib import Path
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-
-app = FastAPI()
-
 # Define the base directory to match your actual file structure
 BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
-
 # Mount static files
 app.mount("/static", StaticFiles(directory=BASE_DIR / "frontend/static"), name="static")
-
 # Load templates
 templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
-
 
 # Include Routes
 app.include_router(auth.router)

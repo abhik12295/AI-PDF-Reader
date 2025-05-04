@@ -39,7 +39,8 @@
     </nav>
 
     {% if request.cookies.get('access_token') %}
-        <h2>Upload your PDF (Max 1 file)</h2>
+        <h2>Welcome, {{ user.email }}!</h2>
+        <h3>Upload your PDF (Max 1 file)</h3>
         <form action="/dashboard" enctype="multipart/form-data" method="post">
             <input type="file" name="pdf" accept="application/pdf" required>
             <button type="submit">Upload</button>
