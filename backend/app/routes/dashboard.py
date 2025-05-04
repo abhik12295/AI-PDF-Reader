@@ -69,6 +69,7 @@ async def dashboard(
     current_user: dict = Depends(get_current_user)
 ):
     print(f"Authenticated User: {current_user}")
+    print
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     try:
