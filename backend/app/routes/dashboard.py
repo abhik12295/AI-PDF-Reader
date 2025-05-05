@@ -5,7 +5,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from backend.app.db.supabase import supabase_client, SUPABASE_BUCKET , SUPABASE_URL
 from ..auth_config import get_current_user
-from backend.app.services.file_service import extract_text, get_summary
+from backend.app.services.file_service import extract_pdf_text, get_summary
 import os
 import jwt
 
@@ -69,16 +69,19 @@ async def dashboard(
     current_user: dict = Depends(get_current_user)
 ):
     print(f"Authenticated User: {current_user}")
-    print
+    print(f"PDF Parameter type: {type(pdf)}")
+    print(f"PDF Parameter type: {pdf}")
+    print(f"PDF filename: {pdf.filename if hasattr(pdf,'filename') else 'N/A'}")
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthorized")
     try:
-        pdf_text = extract_text(pdf)
+        pdf_text = await extract_pdf_text(pdf)
         summary = get_summary(pdf_text)
         return templates.TemplateResponse("dashboard.html",{
             "request":request,  
             "full_text": pdf_text,
             "summary":summary,
+            "user":current_user
         })
     
     except Exception as e:
