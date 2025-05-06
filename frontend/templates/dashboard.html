@@ -12,27 +12,6 @@
                 <a href="/logout">Logout</a>
             {% else %}
                 <a href="/login">Login</a>
-                <a href="/signup">signup</a>
-            {% endif %}
-        </div>
-    </nav>
-</body>
-</html> -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
-    <nav class="navbar">
-        <h1 class="navbar-brand">Dashboard page</h1>
-        <div class="navbar-nav">
-            {% if request.cookies.get('access_token') %}
-                <a href="/">Home</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/login">Login</a>
                 <a href="/signup">Signup</a>
             {% endif %}
         </div>
@@ -58,6 +37,158 @@
 
         {% if error %}
             <p style="color:red;">{{ error }}</p>
+        {% endif %}
+    {% else %}
+        <p>Please log in to upload files and view results.</p>
+        <a href="/login">Login</a>
+    {% endif %}
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .navbar-brand {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .navbar-nav a {
+            margin-left: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .navbar-nav a:hover {
+            text-decoration: underline;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        .upload-section {
+            margin: 20px 0;
+        }
+        .pdf-list {
+            margin: 20px 0;
+        }
+        .pdf-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .pdf-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .pdf-item a:hover {
+            text-decoration: underline;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1 class="navbar-brand">Dashboard page</h1>
+        <div class="navbar-nav">
+            {% if request.cookies.get('access_token') %}
+                <a href="/">Home</a>
+                <a href="/logout">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signup">Signup</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if request.cookies.get('access_token') %}
+        <h2>Welcome, {{ user.email }}!</h2>
+        
+        <!-- Upload Form -->
+        <div class="upload-section">
+            <h3>Upload a PDF (Up to 5 PDFs allowed)</h3>
+            <form action="/dashboard/upload" enctype="multipart/form-data" method="post">
+                <input type="file" name="pdf" accept="application/pdf" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+
+        <!-- Messages -->
+        {% if message %}
+            <p class="message">{{ message }}</p>
+        {% endif %}
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <!-- PDF List -->
+        <div class="pdf-list">
+            <h3>Your PDFs</h3>
+            {% if pdfs %}
+                {% for pdf in pdfs %}
+                    <div class="pdf-item">
+                        <a href="{{ pdf.pdf_url }}" target="_blank">{{ pdf.file_name }}</a>
+                        <form action="/dashboard/delete/{{ pdf.id }}" method="post">
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No PDFs uploaded yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Extracted Text and Summary -->
+        {% if full_text %}
+            <h3>Full Extracted Text:</h3>
+            <pre>{{ full_text }}</pre>
+        {% endif %}
+        {% if summary %}
+            <h3>ChatGPT Summary:</h3>
+            <pre>{{ summary }}</pre>
         {% endif %}
     {% else %}
         <p>Please log in to upload files and view results.</p>
