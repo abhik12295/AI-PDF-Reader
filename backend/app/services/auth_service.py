@@ -12,24 +12,29 @@ def register_user(email: str, password: str):
             raise HTTPException(status_code=400, detail='Signup Failed')
         return RedirectResponse('/login', status_code=303)
     except Exception as e:
+        #raise HTTPException(status_code=400, detail=str(e))
+        error_message = str(e).lower()
+        if "user already registered" in error_message or "email" in error_message:
+            raise HTTPException(status_code=400, detail="Email already exists. Please log in.")
         raise HTTPException(status_code=400, detail=str(e))
+
     # if response.get("error"):
     #     raise HTTPException(status_code=400, detail="User already exists or invalid data")
     # return {"message": "User registered successfully, check your email for confirmation"}
 
 #def login_user(email: str, password: str, response: Response):
-    try:
-        auth_response = supabase_client.auth.sign_in_with_password({
-            "email": email, "password": password
-            })
-        if auth_response.user is None:
-            raise HTTPException(status_code=400, detail='Login Failed')
-        access_token = auth_response.session.access_token
-        response = RedirectResponse('/', status_code=303)
-        response.set_cookie(key = 'access_token', value=f"Bearer {access_token}", httponly=True)
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    # try:
+    #     auth_response = supabase_client.auth.sign_in_with_password({
+    #         "email": email, "password": password
+    #         })
+    #     if auth_response.user is None:
+    #         raise HTTPException(status_code=400, detail='Login Failed')
+    #     access_token = auth_response.session.access_token
+    #     response = RedirectResponse('/', status_code=303)
+    #     response.set_cookie(key = 'access_token', value=f"Bearer {access_token}", httponly=True)
+    #     return response
+    # except Exception as e:
+    #     raise HTTPException(status_code=400, detail=str(e))
     
         #if "error" in auth_response and auth_response["error"]:
         #    raise HTTPException(status_code=400, detail=auth_response["error"]["message"])
@@ -75,4 +80,3 @@ def logout_user(response: Response):
     response.delete_cookie(key = "access_token")
     #response.delete_cookie("refresh_token")
     return response
-
