@@ -115,12 +115,13 @@ async def delete_pdf(
     try:
         delete_result = await delete_pdf_from_storage(pdf_id, current_user["email"])
         pdfs = await get_user_pdfs(current_user["email"])
-        return templates.TemplateResponse("dashboard.html",{
-            "request":request,
-            "user":current_user,
-            "pdfs":pdfs,
-            "message":delete_result["message"]
-        })
+        return RedirectResponse("/dashboard", status_code=303)
+        # return templates.TemplateResponse("dashboard.html",{
+        #     "request":request,
+        #     "user":current_user,
+        #     "pdfs":pdfs,
+        #     "message":delete_result["message"]
+        # })
     except Exception as e:
         print(f"Error in delete: {str(e)}")
         pdfs = await get_user_pdfs(current_user["email"])

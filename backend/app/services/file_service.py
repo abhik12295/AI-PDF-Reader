@@ -161,7 +161,6 @@ async def delete_pdf_from_storage(pdf_id: int, user_email:str)-> dict:
             raise HTTPException(status_code=500, detail=f"File deletion failed {response.error}")
         
         supabase_client.table("user_pdfs").delete().eq("id",pdf_id).execute()
-
         return {"message":f"File {file_name} delete successfully"}
 
     except Exception as e:
