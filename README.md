@@ -1,4 +1,4 @@
-# AI-Powered PDF Reader & Notetaker Documentation
+# AI-Powered PDF Reader Documentation
 
 Welcome to the **AI-Powered PDF Reader & Notetaker** documentation page.
 
@@ -7,7 +7,8 @@ Welcome to the **AI-Powered PDF Reader & Notetaker** documentation page.
 This application allows users to upload PDF files, extract text from them, and interact with OpenAI's GPT models to process the extracted text. You can use this app to:
 
 - Extract and display text from PDFs.
-- Ask AI to summarize or generate notes based on PDF content.
+- Ask AI to generate summary.
+- Talk with that PDF, ask question and learn from it.
 
 ## Features
 
