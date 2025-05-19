@@ -1,18 +1,9 @@
-<!-- <h2>Login</h2>
-<form method="post" action="/login">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-    <p>Don't have an account? <a href="/signup">Sign Up</a></p>
-    <a href="/">Home</a>
-</form> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI PDF Processor - Login</title>
+    <title>AI PDF Processor - Contact</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -37,6 +28,7 @@
                     <h1 class="text-2xl font-bold text-blue-600">AI PDF Processor</h1>
                 </div>
                 <div class="hidden sm:flex sm:items-center space-x-4">
+                    <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">Home</a>
                     {% if request.cookies.get('access_token') %}
                         <a href="/dashboard" class="text-blue-600 hover:text-blue-800 font-medium">Dashboard</a>
                         <a href="/logout" class="text-blue-600 hover:text-blue-800 font-medium">Logout</a>
@@ -58,60 +50,60 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-md">
             <div class="px-4 pt-2 pb-3 space-y-1">
-                {% if request.cookies.get('access_token') %}
-                    <a href="/dashboard" class="block text-blue-600 hover:text-blue-800 py-1">Dashboard</a>
-                    <a href="/logout" class="block text-blue-600 hover:text-blue-800 py-1">Logout</a>
-                {% else %}
-                    <a href="/login" class="block text-blue-600 hover:text-blue-800 py-1">Login</a>
-                    <a href="/signup" class="block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
-                {% endif %}
+                <a href="/" class="block text-blue-600 hover:text-blue-800 py-1">Home</a>
+                <a href="/login" class="block text-blue-600 hover:text-blue-800 py-1">Login</a>
+                <a href="/contact" class="block text-blue-600 hover:text-blue-800 py-1">Contact</a>
+                <a href="/signup" class="block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
             </div>
         </div>
     </nav>
 
-    <!-- Login Form -->
+    <!-- Contact Form -->
     <section class="flex-grow flex items-center justify-center py-12">
         <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md fade-in">
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Login</h2>
-            {% if error %}
-                <div class="bg-red-100 text-red-700 p-4 rounded-md mb-6">
-                    {{ error }}
-                </div>
-            {% endif %}
-            <form method="post" action="/login">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Contact Us</h2>
+            <form action="https://formsubmit.co/059cd784e788c85ed5add9aed225bb53" method="POST">
+                <input type="hidden" name="_captcha" value="true">
                 <div class="mb-4">
-                    <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+                    <label for="name" class="block text-gray-700 font-medium mb-2">Your Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="Your name"
+                        required
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    >
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 font-medium mb-2">Your Email</label>
                     <input
                         type="email"
                         name="email"
                         id="email"
-                        placeholder="Enter your email"
+                        placeholder="Your email"
                         required
                         class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
                     >
                 </div>
                 <div class="mb-6">
-                    <label for="password" class="block text-gray-700 font-medium mb-2">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        placeholder="Enter your password"
+                    <label for="message" class="block text-gray-700 font-medium mb-2">Your Message</label>
+                    <textarea
+                        name="message"
+                        id="message"
+                        placeholder="Your message"
                         required
-                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-                    >
+                        class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 h-32"
+                    ></textarea>
                 </div>
                 <button
                     type="submit"
                     class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
                 >
-                    Login
+                    Send
                 </button>
             </form>
             <p class="mt-4 text-center text-gray-600">
-                Don't have an account? <a href="/signup" class="text-blue-600 hover:underline">Sign Up</a>
-            </p>
-            <p class="mt-2 text-center">
                 <a href="/" class="text-blue-600 hover:underline">Back to Home</a>
             </p>
         </div>
