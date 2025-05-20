@@ -73,9 +73,49 @@ def get_summary(text:str) -> str:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Summarization Failed : {e}")
 
+# Test function to check if the API is working
+def ask_question_about_summary(summary: str, question: str) -> str:
+    """Ask a question about the PDF summary using GPT-4o via RapidAPI"""
+    if len(summary) > 6000:
+        summary = summary[:6000]
+    
+    payload = json.dumps({
+        "model": "gpt-4o",
+        "messages": [
+            {"role": "system", "content": "You are an AI assistant that answers questions based on a PDF summary."},
+            {"role": "user", "content": f"Based on the following PDF summary:\n\n{summary}\n\nAnswer the question: {question}"}
+        ]
+    })
 
-# Adding feature upload pdf to storage
-async def upload_pdf_to_storage(pdf_file:UploadFile,content:bytes, user_email:str)->str:
+    headers = {
+        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-host': "gpt-4o.p.rapidapi.com",
+        'Content-Type': "application/json"
+    }
+
+    try:
+        conn = http.client.HTTPSConnection("gpt-4o.p.rapidapi.com")
+        conn.request("POST", "/chat/completions", payload, headers)
+        res = conn.getresponse()
+        data = res.read().decode("utf-8")
+        if res.status != 200:
+            raise HTTPException(
+                status_code=500,
+                detail=f"RapidAPI request failed with status {res.status}: {data}"
+            )
+        result = json.loads(data)
+        if "choices" in result and len(result["choices"]) > 0:
+            return result["choices"][0]["message"]["content"]
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Unexpected RapidAPI response format: {data}"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Question answering failed: {str(e)}")
+
+# Adding feature upload pdf to storage 
+async def upload_pdf_to_storage(pdf_file:UploadFile,content:bytes, user_email:str,full_text: str, summary: str)->dict:
     #upload pdf to storage and save metadata in user_pdfs table
     if not pdf_file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400,detail="Only pdf files are allowed")
@@ -119,7 +159,9 @@ async def upload_pdf_to_storage(pdf_file:UploadFile,content:bytes, user_email:st
             "user_id":user_id,
             "file_name":pdf_file.filename,
             "pdf_url":pdf_url,
-            "file_hash":file_hash
+            "file_hash":file_hash,
+            "full_text": full_text,
+            "summary": summary
         } 
         insert_response = supabase_client.table("user_pdfs").insert(pdf_data).execute()
         if not insert_response.data:
@@ -154,6 +196,7 @@ async def delete_pdf_from_storage(pdf_id: int, user_email:str)-> dict:
 
     # get path for pdf
     file_path = f"{user_id}/{file_name}"
+    print(f"File path: {file_path}")
 
     try:
         response = supabase_client.storage.from_("pdf-upload").remove([file_path])
@@ -176,4 +219,6 @@ async def get_user_pdfs(user_email:str)->list:
     pdfs = supabase_client.table("user_pdfs"
                         ).select("id, file_name,pdf_url,created_at").eq("user_id",user_id).order("created_at",desc=True).execute()
     return pdfs.data or []
+
+
 

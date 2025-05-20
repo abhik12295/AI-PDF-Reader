@@ -1,50 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
-    <nav class="navbar">
-        <h1 class="navbar-brand">Dashboard page</h1>
-        <div class="navbar-nav">
-            {% if request.cookies.get('access_token') %}
-                <a href="/">Home</a>
-                <a href="/logout">Logout</a>
-            {% else %}
-                <a href="/login">Login</a>
-                <a href="/signup">Signup</a>
-            {% endif %}
-        </div>
-    </nav>
-
-    {% if request.cookies.get('access_token') %}
-        <h2>Welcome, {{ user.email }}!</h2>
-        <h3>Upload your PDF (Max 1 file)</h3>
-        <form action="/dashboard" enctype="multipart/form-data" method="post">
-            <input type="file" name="pdf" accept="application/pdf" required>
-            <button type="submit">Upload</button>
-        </form>
-
-        {% if full_text %}
-            <h3>Full Extracted Text:</h3>
-            <pre>{{ full_text }}</pre>
-        {% endif %}
-
-        {% if summary %}
-            <h3>ChatGPT Summary:</h3>
-            <pre>{{ summary }}</pre>
-        {% endif %}
-
-        {% if error %}
-            <p style="color:red;">{{ error }}</p>
-        {% endif %}
-    {% else %}
-        <p>Please log in to upload files and view results.</p>
-        <a href="/login">Login</a>
-    {% endif %}
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,9 +35,13 @@
                 <div class="hidden sm:flex sm:items-center space-x-4">
                     {% if request.cookies.get('access_token') %}
                         <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">Home</a>
+                        <a href="/dashboard" class="text-blue-600 hover:text-blue-800 font-medium">Dashboard</a>
+                        <a href="/contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
                         <a href="/logout" class="text-blue-600 hover:text-blue-800 font-medium">Logout</a>
                     {% else %}
+                        <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">Home</a>
                         <a href="/login" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
+                        <a href="/contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
                         <a href="/signup" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
                     {% endif %}
                 </div>
@@ -103,9 +60,13 @@
             <div class="px-4 pt-2 pb-3 space-y-1">
                 {% if request.cookies.get('access_token') %}
                     <a href="/" class="block text-blue-600 hover:text-blue-800 py-1">Home</a>
+                    <a href="/dashboard" class="block text-blue-600 hover:text-blue-800 py-1">Dashboard</a>
+                    <a href="/contact" class="block text-blue-600 hover:text-blue-800 py-1">Contact</a>
                     <a href="/logout" class="block text-blue-600 hover:text-blue-800 py-1">Logout</a>
                 {% else %}
+                    <a href="/" class="block text-blue-600 hover:text-blue-800 py-1">Home</a>
                     <a href="/login" class="block text-blue-600 hover:text-blue-800 py-1">Login</a>
+                    <a href="/contact" class="block text-blue-600 hover:text-blue-800 py-1">Contact</a>
                     <a href="/signup" class="block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
                 {% endif %}
             </div>
@@ -115,7 +76,7 @@
     <!-- Main Content -->
     <section class="flex-grow py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {% if request.cookies.get('access_token') %}
+            {% if user %}
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 fade-in">Welcome, {{ user.email }}!</h2>
 
                 <!-- Messages -->
@@ -190,9 +151,34 @@
                     </div>
                 {% endif %}
                 {% if summary %}
-                    <div class="bg-white p-6 rounded-lg shadow-md fade-in">
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">ChatGPT Summary</h3>
                         <pre class="bg-gray-50 p-4 rounded-md">{{ summary }}</pre>
+                        <!-- Question Form -->
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Ask a Question About the Summary</h4>
+                            <form id="question-form" action="/dashboard/ask" method="post">
+                                <input type="hidden" name="summary" value="{{ summary | e }}">
+                                <div class="flex space-x-2">
+                                    <input
+                                        type="text"
+                                        name="question"
+                                        id="question-input"
+                                        placeholder="Enter your question"
+                                        required
+                                        class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                    >
+                                    <button
+                                        type="submit"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                                    >
+                                        Ask
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Chat List -->
+                        <div id="chat-list" class="mt-4 space-y-4"></div>
                     </div>
                 {% endif %}
             {% else %}
@@ -229,6 +215,54 @@
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
+
+        // Simple Chat List
+        let chatMessages = [];
+
+        function renderChatMessages() {
+            const chatList = document.getElementById('chat-list');
+            chatList.innerHTML = '';
+            chatMessages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'p-4 bg-gray-50 rounded-md';
+                msgDiv.innerHTML = `
+                    <p class="font-semibold text-blue-600">You:</p>
+                    <p>${msg.question}</p>
+                    <p class="font-semibold text-blue-600 mt-2">AI:</p>
+                    <p>${msg.answer}</p>
+                `;
+                chatList.appendChild(msgDiv);
+            });
+        }
+
+        // Handle form submission
+        const questionForm = document.getElementById('question-form');
+        if (questionForm) {
+            questionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const questionInput = document.getElementById('question-input');
+                const question = questionInput.value.trim();
+                if (!question) return;
+
+                try {
+                    const formData = new FormData(questionForm);
+                    const response = await fetch('/dashboard/ask', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.answer) {
+                        chatMessages.push({ question, answer: data.answer });
+                        renderChatMessages();
+                        questionInput.value = '';
+                    } else {
+                        alert('Error: ' + (data.error || 'Failed to get answer'));
+                    }
+                } catch (err) {
+                    alert('Error: Failed to submit question');
+                }
+            });
+        }
     </script>
 </body>
 </html>
