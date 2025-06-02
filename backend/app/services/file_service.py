@@ -14,7 +14,12 @@ import logging
 from urllib.parse import quote, unquote
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)  # Set to DEBUG for detailed logs
+logging.basicConfig(level=logging.DEBUG) 
+# Suppress few logs like httpx, httpcore logs
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('httpcore').setLevel(logging.WARNING)
+logging.getLogger('hpack').setLevel(logging.WARNING)
+logging.getLogger('pdfminer').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -307,14 +312,14 @@ async def delete_pdf_from_storage(pdf_id: int, user_email: str) -> dict:
     user_data = supabase_client.table("pdf_user").select("id").eq("email", user_email).execute()
     if not user_data.data:
         raise HTTPException(status_code=404, detail="User not found")
-    user_id = str(user_data.data[0]["id"])  # Ensure user_id is a string
+    user_id = user_data.data[0]["id"]
     logger.debug(f"User ID: {user_id}, Email: {user_email}")
 
     # Get pdf data
     pdf_data = supabase_client.table("user_pdfs").select("file_name, user_id").eq("id", pdf_id).execute()
     if not pdf_data.data:
         raise HTTPException(status_code=404, detail="PDF not found")
-    if str(pdf_data.data[0]["user_id"]) != user_id:
+    if pdf_data.data[0]["user_id"] != user_id:
         raise HTTPException(status_code=403, detail="Unauthorized to delete this PDF")
     file_name = pdf_data.data[0]["file_name"]
     logger.debug(f"PDF ID: {pdf_id}, File name: {file_name}")

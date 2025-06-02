@@ -3,45 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI PDF Processor - Home</title>
+    <title>QueryLeaf AI - Home</title>
+    <link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/ios-filled/16/199033/slug-eating.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            overflow-x: hidden;
         }
         .fade-in {
-            animation: fadeIn 1s ease-in;
+            animation: fadeIn 1.5s ease-in-out;
         }
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+        .slide-up {
+            animation: slideUp 1.2s ease-in-out;
+        }
+        .hover-scale {
+            transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 24px rgba(76, 195, 102, 0.4);
         }
         .hero-bg {
-            background: linear-gradient(135deg, #3b82f6, #1e3a8a);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(76, 195, 102, 0.3));
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1516321310762-7332896e0c30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+            opacity: 0.4;
+            z-index: 0;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes textPop {
+            0% { transform: scale(0.97); opacity: 0.9; }
+            50% { transform: scale(1.03); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .hero-text {
+            color: #4CC366;
+            animation: textPop 2.5s ease-in-out infinite;
+            text-shadow: 0 2px 8px rgba(76, 195, 102, 0.6);
+        }
+        .feature-card {
+            transition: all 0.4s ease-in-out;
+            background: #2D2D2D;
+            border: 1px solid #4CC366;
+            border-radius: 16px;
+        }
+        .feature-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 15px 30px rgba(76, 195, 102, 0.4);
+            border-color: #32A94C;
+        }
+        .nav-text {
+            background: linear-gradient(to right, #4CC366, #199033);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav-text:hover {
+            transform: scale(1.05);
+        }
+        .cta-button {
+            transition: all 0.4s ease-in-out;
+            background: #32A94C;
+            border-radius: 50px;
+        }
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(76, 195, 102, 0.5);
+            background: #199033;
+        }
+        .feature-image {
+            border-radius: 8px;
+            filter: drop-shadow(0 4px 8px rgba(76, 195, 102, 0.3));
+            transition: transform 0.4s ease-in-out;
+        }
+        .feature-image:hover {
+            transform: scale(1.1);
+        }
+        .hero-image {
+            border-radius: 12px;
+            filter: drop-shadow(0 8px 16px rgba(76, 195, 102, 0.4));
+            transition: transform 0.5s ease-in-out;
+        }
+        .hero-image:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body>
     <!-- Navbar -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="bg-[#1A1A1A] shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-blue-600">AI PDF Processor</h1>
+                    <img src="https://img.icons8.com/?size=100&id=9214&format=png&color=199033" alt="Logo" class="h-10 w-10 mr-2">
+                    <a href="/" class="text-2xl font-extrabold nav-text">QueryLeaf AI</a>
                 </div>
-                <div class="hidden sm:flex sm:items-center space-x-4">
+                <div class="hidden sm:flex sm:items-center space-x-6">
                     {% if request.cookies.get('access_token') %}
-                        <a href="/dashboard" class="text-blue-600 hover:text-blue-800 font-medium">Dashboard</a>
-                        <a href="/logout" class="text-blue-600 hover:text-blue-800 font-medium">Logout</a>
+                        <a href="/dashboard" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Dashboard</a>
+                        <a href="/logout" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Logout</a>
                     {% else %}
-                        <a href="/login" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
-                        <a href="/signup" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+                        <a href="/login" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Login</a>
+                        <a href="/signup" class="text-white px-5 py-2 font-semibold cta-button">Sign Up</a>
                     {% endif %}
                 </div>
                 <!-- Mobile Menu Button -->
                 <div class="flex items-center sm:hidden">
-                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-[#4CC366] focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
@@ -50,81 +139,76 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-md">
-            <div class="px-4 pt-2 pb-3 space-y-1">
+        <div id="mobile-menu" class="hidden sm:hidden bg-[#1A1A1A] shadow-md">
+            <div class="px-4 pt-2 pb-3 space-y-2">
                 {% if request.cookies.get('access_token') %}
-                    <a href="/dashboard" class="block text-blue-600 hover:text-blue-800 py-1">Dashboard</a>
-                    <a href="/logout" class="block text-blue-600 hover:text-blue-800 py-1">Logout</a>
+                    <a href="/dashboard" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Dashboard</a>
+                    <a href="/logout" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Logout</a>
                 {% else %}
-                    <a href="/login" class="block text-blue-600 hover:text-blue-800 py-1">Login</a>
-                    <a href="/signup" class="block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+                    <a href="/login" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Login</a>
+                    <a href="/signup" class="block text-white px-5 py-2 font-semibold cta-button">Sign Up</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero-bg text-white py-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Welcome to AI PDF Processor</h2>
-            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-                Upload, analyze, and summarize your PDFs with the power of AI. Streamline your workflow today!
+    <section class="hero-bg py-28 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in relative z-10">
+            <h2 class="text-4xl md:text-6xl font-extrabold hero-text mb-6">Revolutionize Your PDF Workflow</h2>
+            <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto text-gray-300">
+                Upload, analyze, and summarize your PDFs with cutting-edge AI technology. Boost productivity today!
             </p>
+            <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Person interacting with documents" class="hero-image mx-auto mb-8 max-w-md">
             {% if request.cookies.get('access_token') %}
-                <a href="/dashboard" class="bg-white text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition">
+                <a href="/dashboard" class="bg-white text-[#199033] px-8 py-4 font-semibold cta-button hover:bg-gray-100 transition">
                     Go to Dashboard
                 </a>
             {% else %}
-                <a href="/signup" class="bg-white text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition">
-                    Get Started
+                <a href="/signup" class="bg-white text-[#199033] px-8 py-4 font-semibold cta-button hover:bg-gray-100 transition">
+                    Get Started Now
                 </a>
             {% endif %}
         </div>
     </section>
 
     <!-- Features Section -->
-    <section class="py-16 bg-white">
+    <section class="py-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-gray-800 text-center mb-12 fade-in">Why Choose Us?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center p-6 bg-gray-50 rounded-lg shadow-md fade-in">
-                    <svg class="h-12 w-12 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Easy PDF Upload</h3>
-                    <p class="text-gray-600">Upload your PDFs with a simple drag-and-drop interface.</p>
+            <h2 class="text-4xl font-extrabold text-center mb-16 slide-up" style="color: #32A94C;">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="text-center p-8 rounded-2xl feature-card fade-in">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="PDF Upload" class="feature-image h-32 w-full object-cover mx-auto mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Effortless PDF Upload</h3>
+                    <p class="text-gray-300">Drag and drop your PDFs with our intuitive interface.</p>
                 </div>
-                <div class="text-center p-6 bg-gray-50 rounded-lg shadow-md fade-in">
-                    <svg class="h-12 w-12 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Fast Analysis</h3>
-                    <p class="text-gray-600">Get instant text extraction and summaries powered by AI.</p>
+                <div class="text-center p-8 rounded-2xl feature-card fade-in">
+                    <img src="https://plus.unsplash.com/premium_photo-1682124783441-819fd6e243f9?q=80&w=2051&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="AI Analysis" class="feature-image h-32 w-full object-cover mx-auto mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Lightning-Fast Analysis</h3>
+                    <p class="text-gray-300">Instant text extraction and AI-powered summaries.</p>
                 </div>
-                <div class="text-center p-6 bg-gray-50 rounded-lg shadow-md fade-in">
-                    <svg class="h-12 w-12 mx-auto text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Secure Storage</h3>
-                    <p class="text-gray-600">Your PDFs are stored securely with Supabase integration.</p>
+                <div class="text-center p-8 rounded-2xl feature-card fade-in">
+                    <img src="https://plus.unsplash.com/premium_photo-1733306493254-52b143296396?q=80&w=1993&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Secure Storage" class="feature-image h-32 w-full object-cover mx-auto mb-4">
+                    <h3 class="text-2xl font-bold text-white mb-3">Secure Storage</h3>
+                    <p class="text-gray-300">Your PDFs are protected with Supabase integration.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Call to Action -->
-    <section class="bg-blue-600 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in">
-            <h2 class="text-3xl font-bold mb-6">Ready to Transform Your PDF Workflow?</h2>
-            <p class="text-lg mb-8 max-w-2xl mx-auto">
-                Join thousands of users who trust AI PDF Processor for their document needs.
+    <section class="bg-gradient-to-r from-[#1A1A1A] to-[#2D2D2D] py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center slide-up">
+            <h2 class="text-4xl font-extrabold mb-6" style="color: #199033;">Transform Your Document Workflow</h2>
+            <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto text-gray-300">
+                Engage with PDFs like never before—join thousands using QueryLeaf AI for seamless summarization and dynamic chats.
             </p>
             {% if request.cookies.get('access_token') %}
-                <a href="/dashboard" class="bg-white text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition">
+                <a href="/dashboard" class="bg-white text-[#199033] px-8 py-4 font-semibold cta-button hover:bg-gray-100 transition">
                     Go to Dashboard
                 </a>
             {% else %}
-                <a href="/signup" class="bg-white text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100 transition">
+                <a href="/signup" class="bg-white text-[#199033] px-8 py-4 font-semibold cta-button hover:bg-gray-100 transition">
                     Sign Up Now
                 </a>
             {% endif %}
@@ -132,13 +216,13 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-[#1A1A1A] text-white py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-4">© 2025 AI PDF Processor by Abhi. All rights reserved.</p>
-            <div class="flex justify-center space-x-4">
-                <a href="#" class="hover:text-gray-300">About</a>
-                <a href="/contact" class="hover:text-gray-300">Contact</a>
-                <a href="#" class="hover:text-gray-300">Terms of Service</a>
+            <p class="mb-6 text-gray-300">© 2025 QueryLeaf AI by Abhi. All rights reserved.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#" class="text-gray-300 hover:text-[#4CC366] transition">About</a>
+                <a href="/contact" class="text-gray-300 hover:text-[#4CC366] transition">Contact</a>
+                <a href="#" class="text-gray-300 hover:text-[#4CC366] transition">Terms of Service</a>
             </div>
         </div>
     </footer>
@@ -150,6 +234,28 @@
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('animate-slide-up');
+        });
+
+        // Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.fade-in, .slide-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax effect for hero background
+        window.addEventListener('scroll', () => {
+            const hero = document.querySelector('.hero-bg');
+            const scrollPosition = window.pageYOffset;
+            hero.style.backgroundPositionY = `${scrollPosition * 0.5}px`;
         });
     </script>
 </body>

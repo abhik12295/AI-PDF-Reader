@@ -3,51 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI PDF Processor - Dashboard</title>
+    <title>QueryLeaf AI - Dashboard</title>
+    <link type="image/png" sizes="16x16" rel="icon" href="https://img.icons8.com/ios-filled/16/199033/slug-eating.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-color: #1A1A1A;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .fade-in {
-            animation: fadeIn 1s ease-in;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+        .slide-up {
+            animation: slideUp 1.2s ease-in-out;
+        }
+        .hover-scale {
+            transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 24px rgba(76, 195, 102, 0.4);
+        }
+        .dashboard-bg {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(76, 195, 102, 0.3));
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1516321310762-7332896e0c30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+            opacity: 0.4;
+            z-index: 0;
         }
         @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes textPop {
+            0% { transform: scale(0.97); opacity: 0.9; }
+            50% { transform: scale(1.03); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .hero-text {
+            color: #4CC366;
+            animation: textPop 2.5s ease-in-out infinite;
+            text-shadow: 0 2px 8px rgba(76, 195, 102, 0.6);
+        }
+        .nav-text {
+            background: linear-gradient(to right, #4CC366, #199033);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: transform 0.3s ease-in-out;
+        }
+        .nav-text:hover {
+            transform: scale(1.05);
+        }
+        .cta-button {
+            transition: all 0.4s ease-in-out;
+            background: #32A94C;
+            border-radius: 50px;
+        }
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(76, 195, 102, 0.5);
+            background: #199033;
+        }
+        .form-card, .content-card {
+            background: #2D2D2D;
+            border: 1px solid #4CC366;
+            border-radius: 16px;
+            transition: all 0.4s ease-in-out;
+        }
+        .form-card:hover, .content-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(76, 195, 102, 0.4);
+        }
+        .form-input {
+            transition: all 0.3s ease-in-out;
+            background: #3A3A3A;
+            border: 1px solid #4CC366;
+            color: #FFFFFF;
+        }
+        .form-input:focus {
+            border-color: #32A94C;
+            box-shadow: 0 0 8px rgba(76, 195, 102, 0.4);
+        }
+        .error-message {
+            background: rgba(255, 75, 75, 0.1);
+            border: 1px solid #FF4B4B;
+            color: #FF4B4B;
+        }
+        .success-message {
+            background: rgba(76, 195, 102, 0.1);
+            border: 1px solid #4CC366;
+            color: #4CC366;
         }
         pre {
             white-space: pre-wrap;
             max-height: 300px;
             overflow-y: auto;
+            background: #3A3A3A;
+            border: 1px solid #4CC366;
+            color: #FFFFFF;
+        }
+        .pdf-item {
+            background: #3A3A3A;
+            border: 1px solid #4CC366;
+        }
+        .pdf-item:hover {
+            border-color: #32A94C;
+        }
+        .delete-button {
+            background: #FF4B4B;
+        }
+        .delete-button:hover {
+            background: #E03E3E;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            max-height: 400px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .chat-list {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .chat-message {
+            background: #3A3A3A;
+            border: 1px solid #4CC366;
+            border-radius: 12px;
+            margin: 0.5rem 1rem;
+            padding: 1rem;
+        }
+        .chat-input-container {
+            position: sticky;
+            bottom: 0;
+            background: #2D2D2D;
+            padding: 1rem;
+            border-top: 1px solid #4CC366;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body>
     <!-- Navbar -->
-    <nav class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="bg-[#1A1A1A] shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <h1 class="text-2xl font-bold text-blue-600">AI PDF Processor</h1>
+                    <img src="https://img.icons8.com/?size=100&id=9214&format=png&color=199033" alt="Logo" class="h-10 w-10 mr-2">
+                    <a href="/" class="text-2xl font-extrabold nav-text">QueryLeaf AI</a>
                 </div>
-                <div class="hidden sm:flex sm:items-center space-x-4">
+                <div class="hidden sm:flex sm:items-center space-x-6">
                     {% if request.cookies.get('access_token') %}
-                        <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">Home</a>
-                        <a href="/dashboard" class="text-blue-600 hover:text-blue-800 font-medium">Dashboard</a>
-                        <a href="/contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
-                        <a href="/logout" class="text-blue-600 hover:text-blue-800 font-medium">Logout</a>
+                        <a href="/" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Home</a>
+                        <a href="/dashboard" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Dashboard</a>
+                        <a href="/contact" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Contact</a>
+                        <a href="/logout" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Logout</a>
                     {% else %}
-                        <a href="/" class="text-blue-600 hover:text-blue-800 font-medium">Home</a>
-                        <a href="/login" class="text-blue-600 hover:text-blue-800 font-medium">Login</a>
-                        <a href="/contact" class="text-blue-600 hover:text-blue-800 font-medium">Contact</a>
-                        <a href="/signup" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+                        <a href="/" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Home</a>
+                        <a href="/login" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Login</a>
+                        <a href="/contact" class="text-gray-300 hover:text-[#4CC366] font-semibold transition">Contact</a>
+                        <a href="/signup" class="text-white px-5 py-2 font-semibold cta-button">Sign Up</a>
                     {% endif %}
                 </div>
                 <!-- Mobile Menu Button -->
                 <div class="flex items-center sm:hidden">
-                    <button id="mobile-menu-btn" class="text-gray-600 hover:text-gray-800 focus:outline-none">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-[#4CC366] focus:outline-none">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
@@ -56,63 +196,52 @@
             </div>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden sm:hidden bg-white shadow-md">
-            <div class="px-4 pt-2 pb-3 space-y-1">
+        <div id="mobile-menu" class="hidden sm:hidden bg-[#1A1A1A] shadow-md">
+            <div class="px-4 pt-2 pb-3 space-y-2">
                 {% if request.cookies.get('access_token') %}
-                    <a href="/" class="block text-blue-600 hover:text-blue-800 py-1">Home</a>
-                    <a href="/dashboard" class="block text-blue-600 hover:text-blue-800 py-1">Dashboard</a>
-                    <a href="/contact" class="block text-blue-600 hover:text-blue-800 py-1">Contact</a>
-                    <a href="/logout" class="block text-blue-600 hover:text-blue-800 py-1">Logout</a>
+                    <a href="/" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Home</a>
+                    <a href="/dashboard" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Dashboard</a>
+                    <a href="/contact" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Contact</a>
+                    <a href="/logout" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Logout</a>
                 {% else %}
-                    <a href="/" class="block text-blue-600 hover:text-blue-800 py-1">Home</a>
-                    <a href="/login" class="block text-blue-600 hover:text-blue-800 py-1">Login</a>
-                    <a href="/contact" class="block text-blue-600 hover:text-blue-800 py-1">Contact</a>
-                    <a href="/signup" class="block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Sign Up</a>
+                    <a href="/" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Home</a>
+                    <a href="/login" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Login</a>
+                    <a href="/contact" class="block text-gray-300 hover:text-[#4CC366] py-2 font-semibold">Contact</a>
+                    <a href="/signup" class="block text-white px-5 py-2 font-semibold cta-button">Sign Up</a>
                 {% endif %}
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <section class="flex-grow py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section class="dashboard-bg flex-grow py-12 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             {% if user %}
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 fade-in">Welcome, {{ user.email }}!</h2>
+                <h2 class="text-3xl font-extrabold hero-text mb-6 fade-in">Welcome, {{ user.email }}!</h2>
 
                 <!-- Messages -->
-                <!-- {% if message %}
-                    <div class="bg-green-100 text-green-700 p-4 rounded-md mb-6 fade-in">
-                        {{ message }}
-                    </div>
-                {% endif %}
-                {% if error %}
-                    <div class="bg-red-100 text-red-700 p-4 rounded-md mb-6 fade-in">
-                        {{ error }}
-                    </div>
-                {% endif %} -->
-                <!-- Messages -->
                 {% if request.query_params.get('message') %}
-                    <div class="bg-green-100 text-green-700 p-4 rounded-md mb-6 fade-in">
+                    <div class="success-message p-4 rounded-md mb-6 fade-in">
                         {{ request.query_params.get('message') | replace('+', ' ') }}
                     </div>
                 {% elif message %}
-                    <div class="bg-green-100 text-green-700 p-4 rounded-md mb-6 fade-in">
+                    <div class="success-message p-4 rounded-md mb-6 fade-in">
                         {{ message }}
                     </div>
                 {% endif %}
                 {% if request.query_params.get('error') %}
-                    <div class="bg-red-100 text-red-700 p-4 rounded-md mb-6 fade-in">
+                    <div class="error-message p-4 rounded-md mb-6 fade-in">
                         {{ request.query_params.get('error') | replace('+', ' ') }}
                     </div>
                 {% elif error %}
-                    <div class="bg-red-100 text-red-700 p-4 rounded-md mb-6 fade-in">
+                    <div class="error-message p-4 rounded-md mb-6 fade-in">
                         {{ error }}
                     </div>
                 {% endif %}
 
                 <!-- Upload Form -->
-                <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Upload a PDF (Up to 5 PDFs allowed)</h3>
+                <div class="content-card p-6 mb-8 fade-in">
+                    <h3 class="text-xl font-semibold text-white mb-4">Upload a PDF (Up to 5 PDFs allowed)</h3>
                     <form action="/dashboard/upload" enctype="multipart/form-data" method="post">
                         <div class="mb-4">
                             <input
@@ -120,12 +249,12 @@
                                 name="pdf"
                                 accept="application/pdf"
                                 required
-                                class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                class="w-full px-4 py-3 form-input rounded-md focus:outline-none"
                             >
                         </div>
                         <button
                             type="submit"
-                            class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            class="text-white px-6 py-3 font-semibold cta-button hover:bg-[#199033] transition"
                         >
                             Upload
                         </button>
@@ -133,23 +262,23 @@
                 </div>
 
                 <!-- PDF List -->
-                <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Your PDFs</h3>
+                <div class="content-card p-6 mb-8 fade-in">
+                    <h3 class="text-xl font-semibold text-white mb-4">Your PDFs</h3>
                     {% if pdfs %}
                         <div class="space-y-4">
                             {% for pdf in pdfs %}
-                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-md">
+                                <div class="flex items-center justify-between p-4 pdf-item rounded-md">
                                     <a
                                         href="{{ pdf.pdf_url }}"
                                         target="_blank"
-                                        class="text-blue-600 hover:underline"
+                                        class="text-[#4CC366] hover:underline"
                                     >
                                         {{ pdf.file_name }}
                                     </a>
                                     <form action="/dashboard/delete/{{ pdf.id }}" method="post">
                                         <button
                                             type="submit"
-                                            class="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
+                                            class="text-white px-3 py-1 rounded-md delete-button hover:bg-[#E03E3E] transition"
                                         >
                                             Delete
                                         </button>
@@ -158,54 +287,68 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-gray-600">No PDFs uploaded yet.</p>
+                        <p class="text-gray-300">No PDFs uploaded yet.</p>
                     {% endif %}
                 </div>
 
                 <!-- Extracted Text and Summary -->
                 {% if full_text %}
-                    <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Full Extracted Text</h3>
-                        <pre class="bg-gray-50 p-4 rounded-md">{{ full_text }}</pre>
+                    <div class="content-card p-6 mb-8 fade-in">
+                        <h3 class="text-xl font-semibold text-white mb-4">Full Extracted Text</h3>
+                        <pre class="p-4 rounded-md">{{ full_text }}</pre>
                     </div>
                 {% endif %}
                 {% if summary %}
-                    <div class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">ChatGPT Summary</h3>
-                        <pre class="bg-gray-50 p-4 rounded-md">{{ summary }}</pre>
-                        <!-- Question Form -->
+                    <div class="content-card p-6 mb-8 fade-in">
+                        <h3 class="text-xl font-semibold text-white mb-4">ChatGPT Summary</h3>
+                        <pre class="p-4 rounded-md">{{ summary }}</pre>
+                        <!-- Chat Section -->
                         <div class="mt-6">
-                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Ask a Question About the Summary</h4>
-                            <form id="question-form" action="/dashboard/ask" method="post">
-                                <input type="hidden" name="summary" value="{{ summary | e }}">
-                                <div class="flex space-x-2">
-                                    <input
-                                        type="text"
-                                        name="question"
-                                        id="question-input"
-                                        placeholder="Enter your question"
-                                        required
-                                        class="flex-grow px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
-                                    >
-                                    <button
-                                        type="submit"
-                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                                    >
-                                        Ask
-                                    </button>
+                            <h4 class="text-lg font-semibold text-white mb-2">Chat with Your Document</h4>
+                            <div class="chat-container">
+                                <div id="chat-list" class="chat-list">
+                                    {% if chat_messages %}
+                                        {% for msg in chat_messages %}
+                                            <div class="chat-message">
+                                                <p class="font-semibold text-[#4CC366]">You:</p>
+                                                <p class="text-gray-300">{{ msg.question }}</p>
+                                                <p class="font-semibold text-[#4CC366] mt-2">AI:</p>
+                                                <p class="text-gray-300">{{ msg.answer }}</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
-                            </form>
+                                <div class="chat-input-container">
+                                    <form id="question-form" action="/dashboard/ask" method="post">
+                                        <input type="hidden" name="summary" value="{{ summary | e }}">
+                                        <div class="flex space-x-2">
+                                            <input
+                                                type="text"
+                                                name="question"
+                                                id="question-input"
+                                                placeholder="Ask about the summary..."
+                                                required
+                                                class="flex-grow px-4 py-3 form-input rounded-md focus:outline-none"
+                                            >
+                                            <button
+                                                type="submit"
+                                                class="text-white px-6 py-3 font-semibold cta-button hover:bg-[#199033] transition"
+                                            >
+                                                Ask
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Chat List -->
-                        <div id="chat-list" class="mt-4 space-y-4"></div>
                     </div>
                 {% endif %}
             {% else %}
                 <div class="text-center fade-in">
-                    <p class="text-gray-600 mb-4">Please log in to upload files and view results.</p>
+                    <p class="text-gray-300 mb-4">Please log in to upload files and view results.</p>
                     <a
                         href="/login"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                        class="text-white px-6 py-3 font-semibold cta-button hover:bg-[#199033] transition"
                     >
                         Login
                     </a>
@@ -215,13 +358,13 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-[#1A1A1A] text-white py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-4">© 2025 AI PDF Processor. All rights reserved.</p>
-            <div class="flex justify-center space-x-4">
-                <a href="#" class="hover:text-gray-300">About</a>
-                <a href="/contact" class="hover:text-gray-300">Contact</a>
-                <a href="#" class="hover:text-gray-300">Terms of Service</a>
+            <p class="mb-6 text-gray-300">© 2025 QueryLeaf AI by Abhi. All rights reserved.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="#" class="text-gray-300 hover:text-[#4CC366] transition">About</a>
+                <a href="/contact" class="text-gray-300 hover:text-[#4CC366] transition">Contact</a>
+                <a href="#" class="text-gray-300 hover:text-[#4CC366] transition">Terms of Service</a>
             </div>
         </div>
     </footer>
@@ -233,25 +376,43 @@
         const mobileMenu = document.getElementById('mobile-menu');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('animate-slide-up');
         });
 
-        // Simple Chat List
+        // Scroll Animation Trigger
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+
+        document.querySelectorAll('.fade-in, .slide-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Chat List
         let chatMessages = [];
 
         function renderChatMessages() {
             const chatList = document.getElementById('chat-list');
             chatList.innerHTML = '';
-            chatMessages.forEach(msg => {
+            // Reverse order to show newest at bottom
+            [...chatMessages].reverse().forEach(msg => {
                 const msgDiv = document.createElement('div');
-                msgDiv.className = 'p-4 bg-gray-50 rounded-md';
+                msgDiv.className = 'chat-message';
                 msgDiv.innerHTML = `
-                    <p class="font-semibold text-blue-600">You:</p>
-                    <p>${msg.question}</p>
-                    <p class="font-semibold text-blue-600 mt-2">AI:</p>
-                    <p>${msg.answer}</p>
+                    <p class="font-semibold text-[#4CC366]">You:</p>
+                    <p class="text-gray-300">${msg.question}</p>
+                    <p class="font-semibold text-[#4CC366] mt-2">AI:</p>
+                    <p class="text-gray-300">${msg.answer}</p>
                 `;
-                chatList.appendChild(msgDiv);
+                chatList.insertBefore(msgDiv, chatList.firstChild);
             });
+            // Scroll to bottom
+            chatList.scrollTop = chatList.scrollHeight;
         }
 
         // Handle form submission
@@ -282,6 +443,14 @@
                 }
             });
         }
+
+        // Initialize chat scroll position
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatList = document.getElementById('chat-list');
+            if (chatList) {
+                chatList.scrollTop = chatList.scrollHeight;
+            }
+        });
     </script>
 </body>
 </html>
