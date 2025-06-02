@@ -218,6 +218,7 @@ async def upload_pdf(
     finally:
         await pdf.close()
 
+'''
 @router.post("/delete/{pdf_id}", response_class=HTMLResponse)
 async def delete_pdf(
     request: Request,
@@ -238,6 +239,28 @@ async def delete_pdf(
             "pdfs": pdfs,
             "chat_messages": []
         })
+'''
+
+import logging
+logger = logging.getLogger(__name__)
+
+@router.post("/delete/{pdf_id}", response_class=HTMLResponse)
+async def delete_pdf(
+    request: Request,
+    pdf_id: int,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        delete_result = await delete_pdf_from_storage(pdf_id, current_user["email"])
+        return RedirectResponse(url="/dashboard?message=PDF+deleted+successfully", status_code=303)
+    except HTTPException as e:
+        logger.error(f"Delete failed for PDF {pdf_id}: {str(e)}")
+        error_message = str(e.detail).replace(' ', '+')
+        return RedirectResponse(url=f"/dashboard?error={error_message}", status_code=303)
+    except Exception as e:
+        logger.error(f"Unexpected error deleting PDF {pdf_id}: {str(e)}")
+        error_message = str(e).replace(' ', '+')
+        return RedirectResponse(url=f"/dashboard?error=Unexpected+error:+{error_message}", status_code=303)
 
 @router.post("/ask", response_class=JSONResponse)
 async def ask_question(

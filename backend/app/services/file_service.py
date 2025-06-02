@@ -10,6 +10,13 @@ from fastapi import HTTPException
 from backend.app.db.supabase import supabase_client
 from pdfminer.high_level import extract_text as pdfminer_extract_text
 import hashlib
+import logging
+from urllib.parse import quote, unquote
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)  # Set to DEBUG for detailed logs
+logger = logging.getLogger(__name__)
+
 
 load_dotenv()
 RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
@@ -114,71 +121,140 @@ def ask_question_about_summary(summary: str, question: str) -> str:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Question answering failed: {str(e)}")
 
-# Adding feature upload pdf to storage 
-async def upload_pdf_to_storage(pdf_file:UploadFile,content:bytes, user_email:str,full_text: str, summary: str)->dict:
-    #upload pdf to storage and save metadata in user_pdfs table
-    if not pdf_file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400,detail="Only pdf files are allowed")
-    if not content:
-        raise HTTPException(status_code=400,detail="Uploaded PDF is empty")
+# # Adding feature upload pdf to storage 
+# async def upload_pdf_to_storage(pdf_file:UploadFile,content:bytes, user_email:str,full_text: str, summary: str)->dict:
+#     #upload pdf to storage and save metadata in user_pdfs table
+#     if not pdf_file.filename.lower().endswith('.pdf'):
+#         raise HTTPException(status_code=400,detail="Only pdf files are allowed")
+#     if not content:
+#         raise HTTPException(status_code=400,detail="Uploaded PDF is empty")
     
-    #hash the file
-    file_hash = hashlib.sha256(content).hexdigest()
+#     #hash the file
+#     file_hash = hashlib.sha256(content).hexdigest()
 
-    #get user_id
+#     #get user_id
+#     user_data = supabase_client.table("pdf_user").select("id").eq("email", user_email).execute()
+#     if not user_data.data:
+#         raise HTTPException(status_code=404, detail="User not found")
+#     user_id = user_data.data[0]["id"]
+
+#     #check for duplicate files
+#     hash_check = supabase_client.table("user_pdfs").select("id").eq("file_hash", file_hash).execute()
+#     if hash_check.data:
+#         raise HTTPException(status_code=400, detail="File already exists")
+    
+#     #check PDF limit(5 per user)
+#     pdf_count = supabase_client.table("user_pdfs").select("id", count="exact").eq("user_id",user_id).execute()
+#     count = pdf_count.count if hasattr(pdf_count, 'count') else len(pdf_count.data)
+#     if count>=5:
+#         raise HTTPException(status_code=400,detail="Maximum 5 pdfs per user reached")
+    
+#     #upload to storage supabase
+#     file_path = f"{user_id}/{pdf_file.filename}"
+#     try:
+#         response = supabase_client.storage.from_("pdf-upload").upload(
+#             file_path,content, file_options={"content_type":"application/pdf"}
+#             )
+#         if hasattr(response, 'error') and response.error:
+#             raise HTTPException(status_code=500, detail=f"File upload failed: {response.error}")
+        
+#         #generate public url
+#         pdf_url = f"{SUPASBASE_STORAGE_ENDPOINT}/pdf-upload/{file_path}"       
+
+#         #save metadata
+#         pdf_data = {
+#             "user_id":user_id,
+#             "file_name":pdf_file.filename,
+#             "pdf_url":pdf_url,
+#             "file_hash":file_hash,
+#             "full_text": full_text,
+#             "summary": summary
+#         } 
+#         insert_response = supabase_client.table("user_pdfs").insert(pdf_data).execute()
+#         if not insert_response.data:
+#             # Rollback upload
+#             supabase_client.storage.from_("pdf-upload").remove([file_path])
+#             raise HTTPException(status_code=500, detail="Failed to save pdf metadata")
+#         return {
+#             "message":"File uploaded successfully",
+#             "file_name": pdf_file.filename,
+#             "pdf_url":pdf_url
+#         }
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Upload failed : {str(e)}")
+#     finally:
+#         await pdf_file.close()
+
+
+async def upload_pdf_to_storage(pdf_file: UploadFile, content: bytes, user_email: str, full_text: str, summary: str) -> dict:
+    import re
+    from urllib.parse import quote
+    if not pdf_file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded PDF is empty")
+
+    # Sanitize file name
+    sanitized_filename = re.sub(r'[^\w\-\.]', '_', pdf_file.filename).lower()
+    file_hash = hashlib.sha256(content).hexdigest()
+    logger.debug(f"Sanitized filename: {sanitized_filename}, Hash: {file_hash}")
+
+    # Get user_id
     user_data = supabase_client.table("pdf_user").select("id").eq("email", user_email).execute()
     if not user_data.data:
         raise HTTPException(status_code=404, detail="User not found")
-    user_id = user_data.data[0]["id"]
+    user_id = str(user_data.data[0]["id"])
 
-    #check for duplicate files
+    # Check for duplicate files
     hash_check = supabase_client.table("user_pdfs").select("id").eq("file_hash", file_hash).execute()
     if hash_check.data:
         raise HTTPException(status_code=400, detail="File already exists")
-    
-    #check PDF limit(5 per user)
-    pdf_count = supabase_client.table("user_pdfs").select("id", count="exact").eq("user_id",user_id).execute()
+
+    # Check PDF limit (5 per user)
+    pdf_count = supabase_client.table("user_pdfs").select("id", count="exact").eq("user_id", user_id).execute()
     count = pdf_count.count if hasattr(pdf_count, 'count') else len(pdf_count.data)
-    if count>=5:
-        raise HTTPException(status_code=400,detail="Maximum 5 pdfs per user reached")
-    
-    #upload to storage supabase
-    file_path = f"{user_id}/{pdf_file.filename}"
+    if count >= 5:
+        raise HTTPException(status_code=400, detail="Maximum 5 PDFs per user reached")
+
+    # Upload to Supabase storage
+    file_path = f"{user_id}/{quote(sanitized_filename)}"
     try:
         response = supabase_client.storage.from_("pdf-upload").upload(
-            file_path,content, file_options={"content_type":"application/pdf"}
-            )
+            file_path, content, file_options={"content_type": "application/pdf"}
+        )
         if hasattr(response, 'error') and response.error:
             raise HTTPException(status_code=500, detail=f"File upload failed: {response.error}")
-        
-        #generate public url
-        pdf_url = f"{SUPASBASE_STORAGE_ENDPOINT}/pdf-upload/{file_path}"       
 
-        #save metadata
+        # Generate public URL
+        pdf_url = f"{SUPASBASE_STORAGE_ENDPOINT}/pdf-upload/{file_path}"
+
+        # Save metadata
         pdf_data = {
-            "user_id":user_id,
-            "file_name":pdf_file.filename,
-            "pdf_url":pdf_url,
-            "file_hash":file_hash,
+            "user_id": user_id,
+            "file_name": sanitized_filename,  # Store sanitized name
+            "pdf_url": pdf_url,
+            "file_hash": file_hash,
             "full_text": full_text,
             "summary": summary
-        } 
+        }
         insert_response = supabase_client.table("user_pdfs").insert(pdf_data).execute()
         if not insert_response.data:
             # Rollback upload
             supabase_client.storage.from_("pdf-upload").remove([file_path])
-            raise HTTPException(status_code=500, detail="Failed to save pdf metadata")
+            raise HTTPException(status_code=500, detail="Failed to save PDF metadata")
         return {
-            "message":"File uploaded successfully",
-            "file_name": pdf_file.filename,
-            "pdf_url":pdf_url
+            "message": "File uploaded successfully",
+            "file_name": sanitized_filename,
+            "pdf_url": pdf_url
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Upload failed : {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
     finally:
         await pdf_file.close()
-    
+
+'''
 async def delete_pdf_from_storage(pdf_id: int, user_email:str)-> dict:
     # get user data
     user_data = supabase_client.table("pdf_user").select("id").eq("email",user_email).execute()
@@ -195,20 +271,92 @@ async def delete_pdf_from_storage(pdf_id: int, user_email:str)-> dict:
     file_name = pdf_data.data[0]["file_name"]
 
     # get path for pdf
-    file_path = f"{user_id}/{file_name}"
-    print(f"File path: {file_path}")
+    from urllib.parse import quote
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    file_path = f"{user_id}/{quote(file_name)}"
+    #file_path = f"{user_id}/{file_name}"
+    print(f"File path: {file_path} for user: {user_email}")
+    logger.info(f"Deleting file {file_name} with path {file_path} for user {user_email}")
 
     try:
         response = supabase_client.storage.from_("pdf-upload").remove([file_path])
-        if hasattr(response, 'error') and response.error:
-            raise HTTPException(status_code=500, detail=f"File deletion failed {response.error}")
+        logger.info(f"Delete response: {response}")
+
+        #verify if deletion was successful
+        list_response = supabase_client.storage.from_("pdf-upload").list(path=user_id)
+        remaining_files = [file.name for file in list_response.data if file.name == file_name]
+        encoded_file_name = quote(file_name)
+        if file_name in remaining_files or encoded_file_name in remaining_files:
+            logger.error(f"File {file_name} deletion failed, still exists in storage")
+            raise HTTPException(status_code=500, detail=f"File {file_name} deletion failed, still exists in storage")
+
+        # if hasattr(response, 'error') and response.error:
+        #     raise HTTPException(status_code=500, detail=f"File deletion failed {response.error}")
         
         supabase_client.table("user_pdfs").delete().eq("id",pdf_id).execute()
+        logger.info(f"Successfully deleted PDF {pdf_id} and file {file_path}")
         return {"message":f"File {file_name} delete successfully"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Deletion failed: {str(e)}")
-    
+'''
+
+async def delete_pdf_from_storage(pdf_id: int, user_email: str) -> dict:
+    # Get user data
+    user_data = supabase_client.table("pdf_user").select("id").eq("email", user_email).execute()
+    if not user_data.data:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_id = str(user_data.data[0]["id"])  # Ensure user_id is a string
+    logger.debug(f"User ID: {user_id}, Email: {user_email}")
+
+    # Get pdf data
+    pdf_data = supabase_client.table("user_pdfs").select("file_name, user_id").eq("id", pdf_id).execute()
+    if not pdf_data.data:
+        raise HTTPException(status_code=404, detail="PDF not found")
+    if str(pdf_data.data[0]["user_id"]) != user_id:
+        raise HTTPException(status_code=403, detail="Unauthorized to delete this PDF")
+    file_name = pdf_data.data[0]["file_name"]
+    logger.debug(f"PDF ID: {pdf_id}, File name: {file_name}")
+
+    # Construct file path
+    file_path = f"{user_id}/{file_name}"  # Use raw file_name as stored
+    encoded_file_path = f"{user_id}/{quote(file_name)}"  # Encoded for API
+    logger.info(f"Attempting to delete file: {file_path} (encoded: {encoded_file_path}) for user: {user_email}")
+
+    try:
+        # Attempt to delete from storage
+        response = supabase_client.storage.from_("pdf-upload").remove([encoded_file_path])
+        logger.info(f"Storage delete response: {response}")
+
+        # Check if deletion succeeded
+        if not response or response == []:
+            logger.warning(f"Delete response empty for {encoded_file_path}, checking storage")
+
+        # Verify file is deleted
+        list_response = supabase_client.storage.from_("pdf-upload").list(path=user_id)
+        logger.debug(f"List response: {list_response}")
+        remaining_files = [f["name"] for f in list_response if isinstance(f, dict) and "name" in f]
+        logger.debug(f"Remaining files in {user_id}/: {remaining_files}")
+
+        if file_name in remaining_files or unquote(file_name) in remaining_files or quote(file_name) in remaining_files:
+            logger.error(f"File {file_path} still exists in storage after deletion attempt")
+            raise HTTPException(status_code=500, detail=f"Failed to delete file {file_name} from storage")
+
+        # Delete from database
+        delete_response = supabase_client.table("user_pdfs").delete().eq("id", pdf_id).execute()
+        if not delete_response.data:
+            logger.error(f"Failed to delete PDF {pdf_id} from user_pdfs table")
+            raise HTTPException(status_code=500, detail="Failed to delete PDF metadata")
+
+        logger.info(f"Successfully deleted PDF {pdf_id} with file {file_path}")
+        return {"message": f"File {file_name} deleted successfully"}
+
+    except Exception as e:
+        logger.error(f"Deletion failed for PDF {pdf_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete: {str(e)}")
+
+
 async def get_user_pdfs(user_email:str)->list:
     # get list of user pdfs
     user_data = supabase_client.table("pdf_user").select("id").eq("email",user_email).execute()
