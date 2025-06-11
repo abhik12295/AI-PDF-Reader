@@ -146,7 +146,9 @@ from ..auth_config import get_current_user
 from backend.app.services.file_service import extract_pdf_text, get_summary, upload_pdf_to_storage, delete_pdf_from_storage, get_user_pdfs, ask_question_about_summary
 import os
 import jwt
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
@@ -241,8 +243,6 @@ async def delete_pdf(
         })
 '''
 
-import logging
-logger = logging.getLogger(__name__)
 
 @router.post("/delete/{pdf_id}", response_class=HTMLResponse)
 async def delete_pdf(
@@ -252,6 +252,7 @@ async def delete_pdf(
 ):
     try:
         delete_result = await delete_pdf_from_storage(pdf_id, current_user["email"])
+        pdfs = await get_user_pdfs(current_user["email"])
         return RedirectResponse(url="/dashboard?message=PDF+deleted+successfully", status_code=303)
     except HTTPException as e:
         logger.error(f"Delete failed for PDF {pdf_id}: {str(e)}")
