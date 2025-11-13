@@ -79,4 +79,38 @@ def logout_user(response: Response):
     response = RedirectResponse('/login', status_code=303)
     response.delete_cookie(key = "access_token")
     #response.delete_cookie("refresh_token")
-    return response
+    return response 
+
+# backend/app/services/auth_service.py
+# backend/app/services/auth_service.py
+# import logging
+# from fastapi import HTTPException, Response
+# from fastapi.responses import RedirectResponse
+# from backend.app.db.supabase import supabase_client
+
+# logger = logging.getLogger(__name__)
+
+# async def register_user(email: str, password: str):
+#     logger.info(f"Supabase sign_up → {email}")
+#     resp = supabase_client.auth.sign_up({"email": email, "password": password})
+#     if not resp.user:
+#         raise HTTPException(status_code=400, detail="Signup failed")
+#     return RedirectResponse("/login", status_code=303)
+
+# async def login_user(email: str, password: str, response: Response):
+#     logger.info(f"Supabase sign_in → {email}")
+#     resp = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
+#     if not resp.session:
+#         raise HTTPException(status_code=400, detail="Invalid credentials")
+#     token = resp.session.access_token
+#     redir = RedirectResponse("/", status_code=303)
+#     redir.set_cookie(
+#         key="access_token", value=token,
+#         httponly=True, secure=False, samesite="lax", max_age=24*60*60
+#     )
+#     return redir
+
+# def logout_user(response: Response):
+#     redir = RedirectResponse("/login", status_code=303)
+#     redir.delete_cookie("access_token")
+#     return redir

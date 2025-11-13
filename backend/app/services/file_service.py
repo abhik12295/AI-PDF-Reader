@@ -1,9 +1,7 @@
 import os
 import json
-import requests 
 from io import BytesIO
 import http.client
-import tempfile
 from dotenv import load_dotenv
 from starlette.datastructures import UploadFile
 from fastapi import HTTPException
@@ -13,6 +11,9 @@ import hashlib
 import logging
 from urllib.parse import quote, unquote
 import re
+import os
+import certifi
+os.environ['SSL_CERT_FILE'] = certifi.where()
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG) 

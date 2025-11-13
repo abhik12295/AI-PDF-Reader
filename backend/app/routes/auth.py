@@ -10,17 +10,19 @@ from fastapi import Form
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import jwt
+import sys
 from pydantic import EmailStr
+from backend.app.core.config import BASE_DIR
 
 router = APIRouter()
 
-BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
+# BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
 # app.mount("/static", StaticFiles(directory=BASE_DIR / "frontend/static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
 
 # Serve the signup page
 @router.get("/signup", response_class=HTMLResponse)
-def signup_page(request: Request):
+async def signup_page(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
 # Router
@@ -36,7 +38,7 @@ async def signup(email: EmailStr = Form(...), password: str = Form(...)):
 
 # Serve the login page
 @router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request):
+async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @router.post("/login")

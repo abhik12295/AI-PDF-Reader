@@ -147,11 +147,16 @@ from backend.app.services.file_service import extract_pdf_text, get_summary, upl
 import os
 import jwt
 import logging
+import sys
+from backend.app.core.config import BASE_DIR
+from jwt import PyJWTError
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
-BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
+# BASE_DIR = Path(r"C:\Users\stuar\Desktop\AI PDF fastapi")
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# sys.path.append(str(BASE_DIR))
 templates = Jinja2Templates(directory=BASE_DIR / "frontend/templates")
 
 # With authentication
