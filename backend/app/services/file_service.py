@@ -25,7 +25,7 @@ logging.getLogger('pdfminer').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-load_dotenv()
+#load_dotenv()
 RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
 SUPABASE_PROJECT_ID = os.getenv('SUPABASE_PROJECT_ID')
 SUPABASE_STORAGE_ENDPOINT = f'https://{SUPABASE_PROJECT_ID}.supabase.co/storage/v1/object/public'

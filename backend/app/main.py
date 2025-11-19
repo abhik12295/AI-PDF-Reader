@@ -37,3 +37,9 @@ def home(request: Request):
 @app.get("/contact", response_class=HTMLResponse)
 def contact(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
+
+
+# Production server - Changes 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
